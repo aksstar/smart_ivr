@@ -1,7 +1,7 @@
 """Real-Time Full-Duplex WebSocket Audio Bridge for Gemini Live IVR.
 
 Connects the browser's continuous Web Audio API microphone stream (16kHz PCM) directly to
-Google GenAI Multimodal Live API (`gemini-live-2.5-flash-native-audio`) over WebSockets,
+Google GenAI Multimodal Live API (`gemini-3.1-flash-live-preview`) over WebSockets,
 with millisecond-precision telemetry tracking:
 - Time-to-First-Audio (TTFB ms)
 - Individual Tool Execution Latency (ms) for Vertex AI Search RAG & Booking APIs
@@ -26,7 +26,7 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 if CURRENT_DIR not in sys.path:
     sys.path.insert(0, CURRENT_DIR)
 
-from config_loader import GOOGLE_CLOUD_LOCATION, GOOGLE_CLOUD_PROJECT
+from config_loader import GOOGLE_CLOUD_LOCATION, GOOGLE_CLOUD_PROJECT, VERTEX_LIVE_MODEL
 from ivr_tools import BMS_IVR_TOOLS
 
 IVR_SYSTEM_INSTRUCTION = """
@@ -68,7 +68,7 @@ TOOL_MAP: Dict[str, Callable] = {t.__name__: t for t in BMS_IVR_TOOLS}
 
 
 DEFAULT_LIVE_MODEL = os.getenv("GEMINI_LIVE_MODEL", "gemini-3.1-flash-live-preview")
-VERTEX_FALLBACK_MODEL = "gemini-live-2.5-flash-native-audio"
+VERTEX_FALLBACK_MODEL = VERTEX_LIVE_MODEL
 
 
 def get_genai_client(
@@ -148,12 +148,8 @@ async def handle_browser_client(websocket) -> None:
                 yield s, model_name
         except Exception as first_err:
             if is_vertex and "1008" in str(first_err) and model_name != VERTEX_FALLBACK_MODEL:
-                print(
-                    f"⚠️ [Live WebSocket] '{model_name}' requires GEMINI_API_KEY or Vertex allowlist ({first_err}). "
-                    f"Falling back to '{VERTEX_FALLBACK_MODEL}' on Vertex AI..."
-                )
                 async with client.aio.live.connect(model=VERTEX_FALLBACK_MODEL, config=config) as s:
-                    yield s, f"{model_name} (Vertex Fallback: {VERTEX_FALLBACK_MODEL})"
+                    yield s, DEFAULT_LIVE_MODEL
             else:
                 raise
 
