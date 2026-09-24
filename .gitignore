@@ -1,0 +1,20 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Recordings & logs
+*.wav
+*.log
+
+# Archive & unused legacy files
+archive/
+
+# Environments, configs & secrets (never push to git)
+.env
+.env.*
+config.json
+*.config.json
+*credential*
+*secret*
