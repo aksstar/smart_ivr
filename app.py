@@ -148,7 +148,7 @@ st.markdown(
     <div class="top-nav">
         <div class="brand-title">
             <span>🎟️ Smart IVR Studio</span>
-            <span class="brand-tag">GEMINI 3.1 FLASH LIVE PREVIEW</span>
+            <span class="brand-tag">GEMINI 3.8 FLASH LIVE PREVIEW</span>
         </div>
         <div class="arch-pills">
             <span class="arch-pill">⚡ Full-Duplex 24kHz PCM</span>
@@ -167,7 +167,7 @@ with st.expander("ℹ️ Voice AI Telemetry & Latency Guide: What is TTFB vs Tur
 | Latency Metric | Definition | Why It Matters in Voice AI |
 | :--- | :--- | :--- |
 | **⚡ Perceived TTFB (Time-To-First-Audio Byte)** | Time elapsed from the exact millisecond the caller **stops speaking** (or clicks a prompt) until the **very first audio byte** of Aria's voice response arrives at the speaker (`User Speech End → First Audio Byte`). | **This is the single most critical metric for human conversational naturalness.** Humans expect a conversational response to begin within **300–800 ms**. Even if a full answer takes 6 seconds to speak, a low TTFB makes the AI feel instantaneous. |
-| **🧠 LLM Model Inference Latency** | Time taken purely by **Gemini 3.1 Flash Live Preview** to reason over the prompt/tool output and synthesize the first audio frame (`TTFB − Tool Call Latency`). | Isolates Google Gemini's core neural audio generation speed from external database or network bottlenecks. |
+| **🧠 LLM Model Inference Latency** | Time taken purely by **Gemini 3.8 Flash Live Preview** to reason over the prompt/tool output and synthesize the first audio frame (`TTFB − Tool Call Latency`). | Isolates Google Gemini's core neural audio generation speed from external database or network bottlenecks. |
 | **🛠️ Tool Call Latency** | Time spent executing external backend tools: **BigQuery (`customer_bookings` lookup by mobile number)**, **Vertex AI Search RAG**, or **Refund Ledger APIs**. | Shows database and RAG search performance. When a tool is called, `Perceived TTFB = Tool Call Latency + LLM Inference Latency`. |
 | **🔊 Audio Streaming Duration** | Time spent streaming and speaking the synthesized 24kHz PCM audio response from the **first audio byte until the final word** is spoken (`E2E Turn Latency − TTFB`). | Depends on how long Aria's spoken sentence is (e.g. reading out movie title, seats, showtime, and cinema name takes ~4–7 seconds of audio). |
 | **🏁 End-to-End (E2E) Turn Latency** | Total wall-clock time from when the caller finishes speaking until the **entire turn (Tool Calls + LLM Reasoning + Full Audio Stream)** is 100% completed (`TTFB + Audio Streaming Duration`). | Measures total turn throughput and resource utilization per conversational turn. |
@@ -553,10 +553,10 @@ REALTIME_COMMAND_CENTER_HTML = """
         <div id="kpiTtfbSub" class="kpi-sub">Wait time before AI speaks</div>
     </div>
 
-    <div class="kpi-card" title="Pure Gemini 3.1 Flash Live Preview model reasoning & speech synthesis latency">
+    <div class="kpi-card" title="Pure Gemini 3.8 Flash Live Preview model reasoning & speech synthesis latency">
         <div class="kpi-label">
             <span>🧠 LLM Inference</span>
-            <span id="llmBadge" class="badge-fast">GEMINI 3.1</span>
+            <span id="llmBadge" class="badge-fast">GEMINI 3.8</span>
         </div>
         <div class="kpi-value">
             <span id="kpiLlmLatency">--</span>
@@ -612,7 +612,7 @@ REALTIME_COMMAND_CENTER_HTML = """
             </div>
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                 <select id="modelSelect" onchange="onVoiceChange()" style="background: rgba(15, 23, 42, 0.95); color: #38BDF8; border: 1px solid rgba(56, 189, 248, 0.45); border-radius: 8px; padding: 4px 8px; font-size: 0.74rem; font-family: 'JetBrains Mono', monospace; font-weight: 600; cursor: pointer; outline: none;">
-                    <option value="gemini-3.1-flash-live-preview" selected>⚡ gemini-3.1-flash-live-preview</option>
+                    <option value="gemini-3.8-flash-live-preview" selected>⚡ gemini-3.8-flash-live-preview</option>
                 </select>
                 <select id="voiceSelect" onchange="onVoiceChange()" style="background: rgba(15, 23, 42, 0.95); color: #F8FAFC; border: 1px solid rgba(248, 68, 100, 0.45); border-radius: 8px; padding: 4px 10px; font-size: 0.76rem; font-family: 'Inter', sans-serif; font-weight: 600; cursor: pointer; outline: none;">
                     <optgroup label="🇮🇳 Indian English (en-IN) • Female Voices">
@@ -841,7 +841,7 @@ function onVoiceChange() {
     const sel = document.getElementById('voiceSelect');
     const modSel = document.getElementById('modelSelect');
     const selectedVoice = sel.value;
-    const selectedModel = modSel ? modSel.value : 'gemini-3.1-flash-live-preview';
+    const selectedModel = modSel ? modSel.value : 'gemini-3.8-flash-live-preview';
     heroTitle.innerText = `Aria • ${selectedModel} • en-IN-${selectedVoice}`;
     if (ws && ws.readyState === WebSocket.OPEN) {
         stopLiveCall();
@@ -852,7 +852,7 @@ function onVoiceChange() {
 async function startLiveCall() {
     try {
         const selectedVoice = document.getElementById('voiceSelect').value || 'Aoede';
-        const selectedModel = document.getElementById('modelSelect') ? document.getElementById('modelSelect').value : 'gemini-3.1-flash-live-preview';
+        const selectedModel = document.getElementById('modelSelect') ? document.getElementById('modelSelect').value : 'gemini-3.8-flash-live-preview';
         heroTitle.innerText = `Aria • ${selectedModel} • en-IN-${selectedVoice}`;
         heroSub.innerText = `Connecting to ${selectedModel} (${selectedVoice} • en-IN)...`;
         const parentLoc = (window.parent && window.parent.location && window.parent.location.host)
