@@ -2,6 +2,8 @@
 
 A real-time, full-duplex conversational telephony agent built on the **Google GenAI Multimodal Live API** (`gemini-3.8-live`) with **BigQuery Indian Mobile Number Lookup**, **Vertex AI Search Grounded RAG**, and a **Millisecond-Precision Voice Telemetry Command Center**.
 
+![Smart IVR Studio — Real-Time Voice & Telemetry Command Center](assets/smart_ivr_ui.png)
+
 ---
 
 ## 🎯 Stakeholders & Core Capabilities
