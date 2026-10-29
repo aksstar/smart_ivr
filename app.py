@@ -715,6 +715,7 @@ let pendingToolCards = {};
 let totalToolCalls = 0;
 let totalToolTimeMs = 0;
 let lastTurnTtfb = 0;
+let lastWsError = null;
 
 const orb = document.getElementById('voiceOrb');
 const heroTitle = document.getElementById('heroTitle');
@@ -1085,10 +1086,18 @@ async function startLiveCall() {
                 currentAiCard = null;
                 currentUserCard = null;
             }
+            else if (msg.type === 'error') {
+                lastWsError = msg.message || 'Unknown WebSocket error';
+                const errCard = createTurnCard('ai', '⚠️ Connection / Auth Error');
+                errCard.bodyDiv.style.color = '#FDA4AF';
+                errCard.bodyDiv.innerText = lastWsError;
+                heroSub.innerText = `⚠️ ${lastWsError}`;
+            }
         };
 
         ws.onclose = () => {
-            stopLiveCall();
+            stopLiveCall(Boolean(lastWsError));
+            lastWsError = null;
         };
     } catch (err) {
         heroSub.innerText = 'Error: ' + err.message;
@@ -1109,7 +1118,7 @@ function sendQuickPrompt(text) {
     ws.send(JSON.stringify({ type: 'text_prompt', text: text }));
 }
 
-function stopLiveCall() {
+function stopLiveCall(preserveErrorSub = false) {
     stopAllPlayback();
     if (processor) { processor.disconnect(); processor = null; }
     if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
@@ -1121,7 +1130,9 @@ function stopLiveCall() {
     stopBtn.style.display = 'none';
     orb.className = 'orb';
     orb.style.transform = 'scale(1)';
-    heroSub.innerText = 'Call ended. Click "Start Hands-Free Call" to reconnect.';
+    if (!preserveErrorSub) {
+        heroSub.innerText = 'Call ended. Click "Start Hands-Free Call" to reconnect.';
+    }
 }
 </script>
 </body>
