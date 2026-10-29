@@ -1,6 +1,6 @@
-# Smart IVR & Voice Automation (Gemini 3.8 Flash Live Preview)
+# Smart IVR & Voice Automation (Gemini 3.8 Flash Live)
 
-A real-time, full-duplex conversational telephony agent built on the **Google GenAI Multimodal Live API** (`gemini-3.8-flash-live-preview`) with **BigQuery Indian Mobile Number Lookup**, **Vertex AI Search Grounded RAG**, and a **Millisecond-Precision Voice Telemetry Command Center**.
+A real-time, full-duplex conversational telephony agent built on the **Google GenAI Multimodal Live API** (`gemini-3.8-live`) with **BigQuery Indian Mobile Number Lookup**, **Vertex AI Search Grounded RAG**, and a **Millisecond-Precision Voice Telemetry Command Center**.
 
 ---
 
@@ -28,7 +28,7 @@ In real-time full-duplex Voice AI systems, measuring total response time alone i
        │         Vertex AI Search RAG (`search_knowledge_base`)
        │
        ├──► 🧠 LLM Model Inference Latency (llm_ttfb_ms)
-       │         Pure Gemini 3.8 Flash Live Preview reasoning & synthesis of first audio frame
+       │         Pure Gemini 3.8 Flash Live reasoning & synthesis of first audio frame
        │         (t_first_audio - post_tool_start_time)
        ▼
 ⚡ Perceived TTFB / Time-To-First-Audio Byte (ttfb_ms)  ◄── Speaker begins playing Aria's voice!
@@ -47,7 +47,7 @@ In real-time full-duplex Voice AI systems, measuring total response time alone i
 | Metric Name | Formula | Target / Benchmark | Definition & Why It Matters |
 | :--- | :--- | :--- | :--- |
 | **⚡ Perceived TTFB**<br>*(Time-To-First-Audio Byte)* | `t_first_audio − turn_start_time` | **300 – 800 ms** *(Direct)*<br>**800 – 1,500 ms** *(With Tool)* | **The #1 metric for human conversational naturalness.** Measures the silent gap between when the user finishes speaking and when Aria's voice starts coming out of the speaker. Even if an answer takes 6 seconds to speak aloud, a sub-second TTFB makes the AI feel instantaneous. |
-| **🧠 LLM Model Inference Latency** | `TTFB − Tool Call Latency`<br>*(or `t_first_audio − post_tool_start`)* | **300 – 650 ms** | Pure **Gemini 3.8 Flash Live Preview** neural reasoning and first-frame audio synthesis time. Isolates Google Gemini's core model speed from external database or network latency. |
+| **🧠 LLM Model Inference Latency** | `TTFB − Tool Call Latency`<br>*(or `t_first_audio − post_tool_start`)* | **300 – 650 ms** | Pure **Gemini 3.8 Flash Live** neural reasoning and first-frame audio synthesis time. Isolates Google Gemini's core model speed from external database or network latency. |
 | **🛠️ Tool Call Latency** | `t_tool_end − t_tool_start` | **120 – 450 ms** *(BigQuery)*<br>**250 – 600 ms** *(Vertex RAG)* | Exact execution time spent waiting on external backend tools: BigQuery SQL query (`customer_bookings`) or Discovery Engine Search API. When a tool runs, `Perceived TTFB = Tool Call Latency + LLM Inference Latency`. |
 | **🔊 Audio Streaming Duration** | `e2e_turn_ms − TTFB` | **2,000 – 7,000 ms**<br>*(Depends on speech length)* | Time spent streaming and speaking the synthesized 24kHz 16-bit PCM audio response from the first audio byte until the final word is spoken. Also tracked as exact spoken duration in seconds (`audio_bytes / 48000`). |
 | **🏁 End-to-End (E2E) Turn Latency** | `TTFB + Audio Streaming Duration` | **2,500 – 8,000 ms** | Total wall-clock time from when the caller stops speaking until the entire conversational turn (Tool Calls + LLM Reasoning + Full Audio Stream) is 100% completed. |
@@ -91,7 +91,7 @@ python3 setup_bq_bookings.py
                                           ▼
  ┌──────────────────────────────────────────────────────────────────────────────────┐
  │             Async WebSocket Bridge ([live_ws_server.py](live_ws_server.py))             │
- │   • Bi-directional audio streaming to `gemini-3.8-flash-live-preview`       │
+ │   • Bi-directional audio streaming to `gemini-3.8-live`                     │
  │   • Millisecond precision timers (`turn_start_time`, `post_tool_start_time`)     │
  └────────────────────────────────────────┬─────────────────────────────────────────┘
                                           │ Autonomous Function Calling
@@ -109,7 +109,7 @@ python3 setup_bq_bookings.py
 ## 📂 Key Files
 
 - [app.py](app.py): Streamlit Real-Time Voice Studio & Telemetry Command Center with 5-metric KPI cards, visual per-turn E2E latency waterfall bars, BigQuery mobile lookup tester, and Vertex AI Search RAG explorer.
-- [live_ws_server.py](live_ws_server.py): Full-duplex WebSocket server connecting browser WebAudio directly to `gemini-3.8-flash-live-preview` and computing real-time TTFB, LLM inference, tool call, and E2E turn latencies.
+- [live_ws_server.py](live_ws_server.py): Full-duplex WebSocket server connecting browser WebAudio directly to `gemini-3.8-live` and computing real-time TTFB, LLM inference, tool call, and E2E turn latencies.
 - [ivr_tools.py](ivr_tools.py): Autonomous tools including `fetch_booking_by_mobile` (BigQuery), `search_knowledge_base` (Vertex AI Search RAG), `request_voice_otp`, `verify_voice_identity`, and `process_ticket_cancellation`.
 - [mock_ticketing_backend.py](mock_ticketing_backend.py): In-memory backend for Voice OTP identity verification and refund ledger processing.
 - [setup_bq_bookings.py](setup_bq_bookings.py): Creates and seeds the BigQuery `customer_bookings` table with Indian mobile numbers.

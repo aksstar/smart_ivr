@@ -1,7 +1,7 @@
 """Real-Time Full-Duplex WebSocket Audio Bridge for Gemini Live IVR.
 
 Connects the browser's continuous Web Audio API microphone stream (16kHz PCM) directly to
-Google GenAI Multimodal Live API (`gemini-3.8-flash-live-preview`) over WebSockets,
+Google GenAI Multimodal Live API (`gemini-3.8-live`) over WebSockets,
 with millisecond-precision telemetry tracking:
 - Time-to-First-Audio (TTFB ms)
 - Individual Tool Execution Latency (ms) for Vertex AI Search RAG & Booking APIs
@@ -67,7 +67,7 @@ WS_PORT = 8765
 TOOL_MAP: Dict[str, Callable] = {t.__name__: t for t in BMS_IVR_TOOLS}
 
 
-DEFAULT_LIVE_MODEL = os.getenv("GEMINI_LIVE_MODEL", "gemini-3.8-flash-live-preview")
+DEFAULT_LIVE_MODEL = os.getenv("GEMINI_LIVE_MODEL", "gemini-3.8-live")
 VERTEX_FALLBACK_MODEL = VERTEX_LIVE_MODEL
 
 
@@ -75,7 +75,7 @@ def get_genai_client(
     requested_model: str = DEFAULT_LIVE_MODEL,
     api_key_override: str = "",
 ) -> tuple[genai.Client, str, bool]:
-    """Initialize GenAI client using Gemini API Key (preferred for gemini-3.8-flash-live-preview) or Vertex AI."""
+    """Initialize GenAI client using Gemini API Key (preferred for gemini-3.8-live) or Vertex AI."""
     api_key = api_key_override.strip() or os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
     if api_key:
         return genai.Client(api_key=api_key), requested_model, False
@@ -147,7 +147,7 @@ async def handle_browser_client(websocket) -> None:
             async with client.aio.live.connect(model=model_name, config=config) as s:
                 yield s, model_name
         except Exception as first_err:
-            if is_vertex and "1008" in str(first_err) and model_name != VERTEX_FALLBACK_MODEL:
+            if is_vertex and model_name != VERTEX_FALLBACK_MODEL:
                 async with client.aio.live.connect(model=VERTEX_FALLBACK_MODEL, config=config) as s:
                     yield s, DEFAULT_LIVE_MODEL
             else:

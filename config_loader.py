@@ -55,5 +55,5 @@ SEARCH_ENGINE_ID: str = os.getenv(
     "SEARCH_ENGINE_ID", _CFG.get("SEARCH_ENGINE_ID", "")
 )
 VERTEX_LIVE_MODEL: str = os.getenv(
-    "VERTEX_LIVE_MODEL", _CFG.get("VERTEX_LIVE_MODEL", "gemini-3.8-flash-live-preview")
+    "VERTEX_LIVE_MODEL", _CFG.get("VERTEX_LIVE_MODEL", "gemini-3.8-live")
 )
